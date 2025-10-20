@@ -6,11 +6,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
-# System deps
-RUN apt-get update && apt-get install -y --no-install-recommends \
-	build-essential \
-	default-mysql-client \
-	&& rm -rf /var/lib/apt/lists/*
+# No system packages needed at runtime; rely on Python wheels to reduce build memory
 
 # Python deps
 COPY backend/requirements.txt /app/requirements.txt
@@ -26,7 +22,7 @@ RUN mkdir -p /app/storage
 
 # Entrypoint
 COPY backend/entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
+RUN sed -i 's/\r$//' /entrypoint.sh && chmod +x /entrypoint.sh
 
 EXPOSE 8000
 

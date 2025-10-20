@@ -2,7 +2,8 @@
 FROM node:20-alpine AS base
 WORKDIR /app
 COPY frontend/package*.json ./
-RUN npm ci
+# Use lockfile if present; otherwise fall back to npm install
+RUN if [ -f package-lock.json ]; then npm ci; else npm install; fi
 COPY frontend .
 RUN npm run build
 

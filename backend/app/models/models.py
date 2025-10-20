@@ -39,7 +39,7 @@ class ImportBatch(Base):
 	type: Mapped[str] = mapped_column(String(50))  # knowledge_a / standard_b / questions
 	status: Mapped[str] = mapped_column(String(20), default=ImportStatus.QUEUED.value)
 	file_path: Mapped[str] = mapped_column(String(500))
-	metadata: Mapped[Optional[dict]] = mapped_column(JSON, default={})
+	meta_data: Mapped[Optional[dict]] = mapped_column(JSON, default={})
 	created_by_id: Mapped[Optional[int]] = mapped_column(ForeignKey("users.id"))
 	created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
 
@@ -57,7 +57,7 @@ class KnowledgeDoc(Base):
 	source_url: Mapped[Optional[str]] = mapped_column(String(500))
 	disclosure_date: Mapped[Optional[date]] = mapped_column(Date)
 	batch_id: Mapped[Optional[int]] = mapped_column(ForeignKey("import_batches.id"))
-	metadata: Mapped[Optional[dict]] = mapped_column(JSON, default={})
+	meta_data: Mapped[Optional[dict]] = mapped_column(JSON, default={})
 	created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
 
 	batch: Mapped[Optional[ImportBatch]] = relationship("ImportBatch")
@@ -87,7 +87,7 @@ class StandardAnswerVersion(Base):
 	strong_constraint: Mapped[bool] = mapped_column(Boolean, default=False)  # 是否强约束
 	effective_from: Mapped[Optional[datetime]] = mapped_column(DateTime)
 	effective_to: Mapped[Optional[datetime]] = mapped_column(DateTime)
-	metadata: Mapped[Optional[dict]] = mapped_column(JSON, default={})
+	meta_data: Mapped[Optional[dict]] = mapped_column(JSON, default={})
 	created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
 
 	standard_answer: Mapped[StandardAnswer] = relationship("StandardAnswer", back_populates="versions")
@@ -101,7 +101,7 @@ class Question(Base):
 	normalized_text: Mapped[Optional[str]] = mapped_column(Text)
 	prompt_template_id: Mapped[Optional[int]] = mapped_column(ForeignKey("prompt_templates.id"))
 	status: Mapped[str] = mapped_column(String(20), default="pending")  # pending/answered/needs_review
-	metadata: Mapped[Optional[dict]] = mapped_column(JSON, default={})
+	meta_data: Mapped[Optional[dict]] = mapped_column(JSON, default={})
 	created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
 
 	prompt_template: Mapped[Optional[PromptTemplate]] = relationship("PromptTemplate")

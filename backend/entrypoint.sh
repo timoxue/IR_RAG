@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Move to app dir
+# Move to app dir and set Python path
 cd /app
+export PYTHONPATH=/app
 
 # Migrate DB if alembic is configured
 if [ -f "/app/alembic.ini" ]; then

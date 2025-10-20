@@ -38,7 +38,7 @@ services:
       - RAGFLOW_API_KEY=
       - DEEPSEEK_API_KEY=
       - STORAGE_BASE_DIR=/app/storage
-      - CORS_ALLOW_ORIGINS=*
+      - CORS_ALLOW_ORIGINS=["*"]
     ports:
       - "8000:8000"
     volumes:
