@@ -1,0 +1,35 @@
+是，可以运行并看到端到端效果，但需满足两项前置：
+你本机已运行 RAGFlow v0.21.0，且地址与端口正确（默认 http://host.docker.internal:7860）。
+配置了 DeepSeek 的 API Key（用于以A为主的初稿生成）。
+最短路径（Windows + Docker Desktop）
+1) 启动
+在项目根目录执行:
+docker compose build
+docker compose up -d
+访问:
+前端: http://localhost:5173
+后端: http://localhost:8000/docs
+DB 管理: http://localhost:8080
+2) 配置与检查
+若 RAGFlow 不在 7860 端口，更新 docker-compose.yml 中 backend 的 RAGFLOW_BASE_URL。
+将你的 DeepSeek Key 写入 docker-compose.yml 的 DEEPSEEK_API_KEY，或在 backend/.env 中配置并重启容器。
+健康检查:
+后端: GET /api/v1/health 返回 {"status":"ok","db":true}
+3) 快速体验流程
+批量导入
+前端“批量导入”页，下载模板，先导入 A 轨 CSV（需填写 kb_a_id）、B 轨 CSV，再导入问题 CSV（填写 kb_a_id、kb_b_id，勾选自动生成）。
+导入后可在 Swagger 的 GET /api/v1/imports/batches 查看批次状态从 queued→processing→completed。
+问答与审核
+前端“QA”页输入问题和 kb_a_id、kb_b_id，可直接看到并查结果（A 生成初稿，B 做对齐）。
+前端“审核工作台”查看生成的任务，能看到初稿/对齐稿、冲突提示；可执行通过/退回/拒绝；可一键“保存为标准回答”。
+常见卡点与自检
+看不到生成结果
+DeepSeek Key 未配置或不可用；RAGFlow 未运行或 RAGFLOW_BASE_URL 不正确。
+RAGFlow 无法检索/上传
+kb_a_id/kb_b_id 填写错误；或 RAGFlow 接口路径与项目内占位不一致（当前默认 /api/kb/query 与 /api/kb/upload，若你部署的路径不同，请告诉我以便我改成你的实际 API）。
+文档路径无效
+A 轨导入表里 source_path 需是容器可访问的路径；建议将原文件放到项目的 storage/source/（已在容器以内挂载 /app/storage）。
+端口占用
+8000/5173/8080/3306 被占用时调整 docker-compose.yml 的端口映射。
+结论
+健康检查、导入、QA、审核、Promote、模板管理、指标/审计均已可用。你只需确保 RAGFlow 地址与 DeepSeek Key 正确，即可完整跑通并看到效果。
