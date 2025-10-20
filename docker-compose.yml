@@ -1,0 +1,75 @@
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: irrag-mysql
+    restart: unless-stopped
+    environment:
+      - MYSQL_ROOT_PASSWORD=your_password
+      - MYSQL_DATABASE=ir_rag
+      - MYSQL_USER=ir
+      - MYSQL_PASSWORD=ir_password
+    command: ["mysqld", "--character-set-server=utf8mb4", "--collation-server=utf8mb4_0900_ai_ci"]
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-p$${MYSQL_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: irrag-backend
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      - ENV=dev
+      - MYSQL_USER=ir
+      - MYSQL_PASSWORD=ir_password
+      - MYSQL_HOST=mysql
+      - MYSQL_PORT=3306
+      - MYSQL_DB=ir_rag
+      - RAGFLOW_BASE_URL=http://host.docker.internal:7860
+      - RAGFLOW_API_KEY=
+      - DEEPSEEK_API_KEY=
+      - STORAGE_BASE_DIR=/app/storage
+      - CORS_ALLOW_ORIGINS=*
+    ports:
+      - "8000:8000"
+    volumes:
+      - backend_storage:/app/storage
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8000/api/v1/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    container_name: irrag-frontend
+    depends_on:
+      - backend
+    environment:
+      - VITE_API_BASE=/api
+    ports:
+      - "5173:80"
+
+  adminer:
+    image: adminer:4
+    container_name: irrag-adminer
+    restart: unless-stopped
+    depends_on:
+      - mysql
+    ports:
+      - "8080:8080"
+
+volumes:
+  mysql_data:
+  backend_storage:
