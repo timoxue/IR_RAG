@@ -37,7 +37,7 @@ async def list_batches(db: AsyncSession = Depends(get_db_session)) -> list[Impor
 	items = []
 	for b in res.scalars().all():
 		items.append(ImportBatchItem(
-			id=b.id, type=b.type, status=b.status, file_path=b.file_path, metadata=b.metadata, created_at=b.created_at.isoformat() if getattr(b, 'created_at', None) else None
+			id=b.id, type=b.type, status=b.status, file_path=b.file_path, metadata=b.meta_data, created_at=b.created_at.isoformat() if getattr(b, 'created_at', None) else None
 		))
 	return items
 

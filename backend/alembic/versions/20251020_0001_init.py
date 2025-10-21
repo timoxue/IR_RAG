@@ -37,7 +37,7 @@ def upgrade() -> None:
 		sa.Column('type', sa.String(length=50), nullable=False),
 		sa.Column('status', sa.String(length=20), nullable=False, server_default='queued'),
 		sa.Column('file_path', sa.String(length=500), nullable=False),
-		sa.Column('metadata', sa.JSON(), nullable=True),
+		sa.Column('meta_data', sa.JSON(), nullable=True),
 		sa.Column('created_by_id', sa.Integer(), sa.ForeignKey('users.id'), nullable=True),
 		sa.Column('created_at', sa.DateTime(), nullable=False, server_default=sa.text('CURRENT_TIMESTAMP')),
 	)
@@ -51,7 +51,7 @@ def upgrade() -> None:
 		sa.Column('source_url', sa.String(length=500), nullable=True),
 		sa.Column('disclosure_date', sa.Date(), nullable=True),
 		sa.Column('batch_id', sa.Integer(), sa.ForeignKey('import_batches.id'), nullable=True),
-		sa.Column('metadata', sa.JSON(), nullable=True),
+		sa.Column('meta_data', sa.JSON(), nullable=True),
 		sa.Column('created_at', sa.DateTime(), nullable=False, server_default=sa.text('CURRENT_TIMESTAMP')),
 	)
 
@@ -72,7 +72,7 @@ def upgrade() -> None:
 		sa.Column('strong_constraint', sa.Boolean(), nullable=False, server_default=sa.text('0')),
 		sa.Column('effective_from', sa.DateTime(), nullable=True),
 		sa.Column('effective_to', sa.DateTime(), nullable=True),
-		sa.Column('metadata', sa.JSON(), nullable=True),
+		sa.Column('meta_data', sa.JSON(), nullable=True),
 		sa.Column('created_at', sa.DateTime(), nullable=False, server_default=sa.text('CURRENT_TIMESTAMP')),
 	)
 
@@ -83,7 +83,7 @@ def upgrade() -> None:
 		sa.Column('normalized_text', sa.Text(), nullable=True),
 		sa.Column('prompt_template_id', sa.Integer(), sa.ForeignKey('prompt_templates.id'), nullable=True),
 		sa.Column('status', sa.String(length=20), nullable=False, server_default='pending'),
-		sa.Column('metadata', sa.JSON(), nullable=True),
+		sa.Column('meta_data', sa.JSON(), nullable=True),
 		sa.Column('created_at', sa.DateTime(), nullable=False, server_default=sa.text('CURRENT_TIMESTAMP')),
 	)
 

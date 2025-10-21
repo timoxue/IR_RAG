@@ -3,14 +3,14 @@ from typing import Any, Dict, List, Optional, Tuple
 import asyncio
 
 from app.clients.ragflow_client import RAGFlowClient
-from app.clients.deepseek_client import DeepSeekClient
+from app.clients.llm_client import LLMClient
 from app.core.config import settings
 
 
 class RAGPipeline:
-	def __init__(self, rag_client: Optional[RAGFlowClient] = None, llm_client: Optional[DeepSeekClient] = None) -> None:
+	def __init__(self, rag_client: Optional[RAGFlowClient] = None, llm_client: Optional[LLMClient] = None) -> None:
 		self.rag_client = rag_client or RAGFlowClient()
-		self.llm = llm_client or DeepSeekClient()
+		self.llm = llm_client or LLMClient()
 
 	async def retrieve_a_b(self, question: str, kb_a_id: str, kb_b_id: str, top_k_a: int = 5, top_k_b: int = 5) -> Tuple[Dict[str, Any], Dict[str, Any]]:
 		res_a_task = asyncio.create_task(self.rag_client.query(kb_id=kb_a_id, query=question, top_k=top_k_a))
@@ -21,7 +21,7 @@ class RAGPipeline:
 	async def generate_initial_from_a(self, question: str, retrieved_a: Dict[str, Any], prompt: str) -> str:
 		context = "\n\n".join([c.get("text", "") for c in retrieved_a.get("chunks", [])])
 		composed_prompt = f"You are an IR assistant.\nQuestion: {question}\nContext (A):\n{context}\nInstructions:\n{prompt}"
-		resp = await self.llm.chat(prompt=composed_prompt, model=settings.deepseek_model, temperature=settings.deepseek_temperature)
+		resp = await self.llm.chat(prompt=composed_prompt, model=settings.llm_model, temperature=settings.deepseek_temperature)
 		answer = resp.get("choices", [{}])[0].get("message", {}).get("content", "") or str(resp)
 		return answer
 

@@ -5,6 +5,7 @@ from pathlib import Path
 import pandas as pd
 import sqlalchemy as sa
 import zipfile
+from loguru import logger
 
 from app.db.session import AsyncSessionLocal
 from app.models.models import KnowledgeDoc, ImportBatch, StandardAnswer, StandardAnswerVersion
@@ -18,10 +19,10 @@ async def _update_batch(batch_id: int, status: str, message: Optional[str] = Non
 		b = res.scalar_one_or_none()
 		if b:
 			b.status = status
-			meta = dict(b.metadata or {})
+			meta = dict(b.meta_data or {})
 			if message:
 				meta["message"] = message
-			b.metadata = meta
+			b.meta_data = meta
 			await db.commit()
 
 
@@ -63,8 +64,8 @@ async def process_knowledge_a_file(file_path: str, kb_a_id: str, default_categor
 				if source_path:
 					try:
 						await rag.upload_document(file_path=source_path, kb_id=kb_a_id, metadata={"doc_id": kd.id, "category": category})
-					except Exception:
-						pass
+					except Exception as e:
+						print(f"[WARNING] Failed to upload to RAGFlow: {e}")
 				count += 1
 			await db.commit()
 		if batch_id is not None:
@@ -186,7 +187,7 @@ async def process_knowledge_a_hybrid(csv_path: str, zip_path: str, kb_a_id: str,
 					source_path=file_path,
 					source_url=source_url,
 					disclosure_date=disclosure_date,
-					metadata={"description": description} if description else None
+					meta_data={"description": description} if description else None
 				)
 				db.add(kd)
 				await db.flush()
@@ -194,8 +195,8 @@ async def process_knowledge_a_hybrid(csv_path: str, zip_path: str, kb_a_id: str,
 				# 上传到 RAGFlow
 				try:
 					await rag.upload_document(file_path=file_path, kb_id=kb_a_id, metadata={"doc_id": kd.id, "category": category, "title": title})
-				except Exception:
-					pass
+				except Exception as e:
+					logger.warning(f"Failed to upload to RAGFlow: {file_path} - {e}")
 				
 				count += 1
 			await db.commit()
@@ -247,8 +248,9 @@ async def process_knowledge_a_zip(zip_path: str, kb_a_id: str, default_category:
 				# 上传到 RAGFlow
 				try:
 					await rag.upload_document(file_path=str(file_path), kb_id=kb_a_id, metadata={"doc_id": kd.id, "category": default_category, "title": title})
-				except Exception:
-					pass
+				except Exception as e:
+					logger.warning(f"Failed to upload to RAGFlow: {file_path} - {e}")
+					# 继续处理，不中断流程
 				
 				count += 1
 			await db.commit()

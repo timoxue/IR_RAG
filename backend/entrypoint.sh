@@ -11,5 +11,5 @@ if [ -f "/app/alembic.ini" ]; then
 	alembic upgrade head || echo "[entrypoint] alembic failed (continuing)"
 fi
 
-# Start Uvicorn
-exec uvicorn app.main:app --host 0.0.0.0 --port 8000
+# Start Uvicorn with increased limits for file uploads
+exec uvicorn app.main:app --host 0.0.0.0 --port 8000 --limit-max-requests 10000 --timeout-keep-alive 600

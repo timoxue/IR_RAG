@@ -13,6 +13,9 @@ class Settings(BaseSettings):
 	ragflow_base_url: str = "http://localhost:7860"
 	ragflow_api_key: str = ""
 	deepseek_api_key: str = ""
+	qwen_api_key: str = ""
+	llm_provider: str = "qwen"  # qwen, deepseek, openai
+	llm_model: str = "qwen-max"  # qwen-max, deepseek-chat, gpt-4, etc.
 	deepseek_model: str = "deepseek-chat"
 	deepseek_temperature: float = 0.2
 

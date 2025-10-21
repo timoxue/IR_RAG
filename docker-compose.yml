@@ -34,9 +34,12 @@ services:
       - MYSQL_HOST=mysql
       - MYSQL_PORT=3306
       - MYSQL_DB=ir_rag
-      - RAGFLOW_BASE_URL=http://host.docker.internal:7860
-      - RAGFLOW_API_KEY=
+      - RAGFLOW_BASE_URL=http://host.docker.internal:9380
+      - RAGFLOW_API_KEY=ragflow-I5OTNkMWEyYWU5MjExZjA4MDBiM2E5OD
       - DEEPSEEK_API_KEY=
+      - QWEN_API_KEY=sk-57056cdaa1ec49c883e585d7ce1ea3d5
+      - LLM_PROVIDER=qwen
+      - LLM_MODEL=qwen-max
       - STORAGE_BASE_DIR=/app/storage
       - CORS_ALLOW_ORIGINS=["*"]
     ports:
