@@ -119,8 +119,11 @@ Docker-compose.yml
 - 健康：GET `/api/v1/health`
 - 单问即答：POST `/api/v1/qa/answer`
   - body: { question, prompt, kb_a_id, kb_b_id, top_k_a, top_k_b }
-- 导入
-  - POST `/api/v1/imports/knowledge-a?kb_a_id=...`（CSV/Excel 列：title, category, source_path, source_url, disclosure_date）
+- 导入知识库A（三种模式）
+  - POST `/api/v1/imports/knowledge-a?kb_a_id=...`（CSV/Excel 列：title, category, source_path, source_url, disclosure_date。适用于文件已在服务器的场景）
+  - POST `/api/v1/imports/knowledge-a-zip?kb_a_id=...&default_category=announcement`（**纯ZIP模式，最简单**：只传 ZIP 包含 PDF/DOCX，自动从文件名提取标题）
+  - POST `/api/v1/imports/knowledge-a-hybrid?kb_a_id=...`（**混合模式，最完整**：同时上传 CSV 元数据 + ZIP 文件包，CSV 列：title, category, filename, source_url, disclosure_date, description。ZIP 内包含 PDF/DOCX，通过 filename 列匹配）
+- 导入其它
   - POST `/api/v1/imports/standards-b`（列：topic_key, content, strong_constraint, effective_from, effective_to, description）
   - POST `/api/v1/imports/questions?kb_a_id=...&kb_b_id=...&generate=true&prompt=...`（列：question）
   - GET `/api/v1/imports/batches` 批次列表（状态：queued/processing/completed/failed）

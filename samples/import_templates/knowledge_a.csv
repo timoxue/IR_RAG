@@ -1,4 +1,4 @@
-title,category,source_path,source_url,disclosure_date
-示例公告标题,announcement,storage/source/sample1.pdf,,2024-09-30
-研发进展摘要,research,storage/source/sample2.pdf,,2024-07-15
-FAQ示例,faq,,,2024-08-01
+title,category,filename,source_url,disclosure_date,description
+示例公告标题,announcement,sample1.pdf,,2024-09-30,年度报告摘要
+研发进展摘要,research,sample2.docx,,2024-07-15,新药研发管线更新
+FAQ示例,faq,faq.pdf,,2024-08-01,投资者常见问题

@@ -82,6 +82,45 @@ async def import_knowledge_a(
 	return ImportResponse(ok=True, batch_id=batch.id, message="processing started")
 
 
+@router.post("/knowledge-a-hybrid")
+async def import_knowledge_a_hybrid(
+	csv_file: UploadFile = File(...),
+	zip_file: UploadFile = File(...),
+	kb_a_id: str = Query(...),
+	db: AsyncSession = Depends(get_db_session),
+) -> ImportResponse:
+	"""混合模式：CSV提供元数据，ZIP包含PDF/DOCX文件，通过filename列匹配"""
+	csv_path = await _save_upload("knowledge_a", csv_file)
+	zip_path = await _save_upload("knowledge_a", zip_file)
+	_validate_headers(csv_path, required=["title", "category", "filename"])  # filename用于匹配ZIP内文件
+	batch = ImportBatch(type="knowledge_a_hybrid", file_path=csv_path, metadata={"zip_path": zip_path})
+	db.add(batch)
+	await db.commit()
+	await db.refresh(batch)
+	# 导入ingest的混合处理函数
+	from app.services.ingest import process_knowledge_a_hybrid
+	asyncio.create_task(process_knowledge_a_hybrid(csv_path=csv_path, zip_path=zip_path, kb_a_id=kb_a_id, batch_id=batch.id))
+	return ImportResponse(ok=True, batch_id=batch.id, message="processing started (hybrid mode)")
+
+
+@router.post("/knowledge-a-zip")
+async def import_knowledge_a_zip(
+	zip_file: UploadFile = File(...),
+	kb_a_id: str = Query(...),
+	default_category: str = Query("announcement"),
+	db: AsyncSession = Depends(get_db_session),
+) -> ImportResponse:
+	"""纯ZIP模式：自动从文件名提取标题，批量上传PDF/DOCX到RAGFlow A"""
+	zip_path = await _save_upload("knowledge_a", zip_file)
+	batch = ImportBatch(type="knowledge_a_zip", file_path=zip_path, metadata={"default_category": default_category})
+	db.add(batch)
+	await db.commit()
+	await db.refresh(batch)
+	from app.services.ingest import process_knowledge_a_zip
+	asyncio.create_task(process_knowledge_a_zip(zip_path=zip_path, kb_a_id=kb_a_id, default_category=default_category, batch_id=batch.id))
+	return ImportResponse(ok=True, batch_id=batch.id, message="processing started (zip-only mode)")
+
+
 @router.post("/standards-b")
 async def import_standards_b(file: UploadFile = File(...), db: AsyncSession = Depends(get_db_session)) -> ImportResponse:
 	path = await _save_upload("standards_b", file)
