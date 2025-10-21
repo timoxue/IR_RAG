@@ -64,6 +64,19 @@ services:
     ports:
       - "5173:80"
 
+  streamlit:
+    build:
+      context: .
+      dockerfile: streamlit_app/Dockerfile
+    container_name: irrag-streamlit
+    depends_on:
+      - backend
+    environment:
+      - BACKEND_API_URL=http://backend:8000
+      - USER_EMAIL=ir@example.com
+    ports:
+      - "8501:8501"
+
   adminer:
     image: adminer:4
     container_name: irrag-adminer
